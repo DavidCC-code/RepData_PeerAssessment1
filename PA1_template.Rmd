@@ -81,7 +81,7 @@ mutate(steps= coalesce(steps, StepsMean ) ) %>%
 select(-StepsMean)
 ```
 
-Now i'll repeat the firs histogram, with  total number of stpes taken each day.
+Now i'll repeat the firs histogram, with  total number of steps taken each day.
 
 
 ```{r}
