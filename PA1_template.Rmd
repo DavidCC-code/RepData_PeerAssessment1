@@ -1,25 +1,98 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+author: "David Contreras Carretero"
+date: "5/9/2020"
+output: html_document
+html_document:
+keep_md: true
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+options("scipen"=100, "digits"=2)
+```
 
 ## Loading and preprocessing the data
+Data for this assignment was included in the initial repository in a .zip file named activity.zip containing a .csv file named activity.csv.
 
+```{r echo=TRUE}
+data <- read.table(unz("activity.zip", "activity.csv"),header =T , quote="\"", sep=",")
+```
 
 
 ## What is mean total number of steps taken per day?
 
+Frist I will summarise the data and obtain a data set with one entry for each day with total steps for each day.
+
+```{r }
+library(dplyr)
+Total_Steps <- data %>% group_by(date) %>% summarise(steps=sum(steps) )
+```
+
+
+```{r}
+hist(Total_Steps$steps, xlab="Steps",main="Total steps in one day")
+```
+
+```{r }
+steps_mean <- mean(Total_Steps[!is.na(Total_Steps$steps),]$steps)
+steps_median <- median(Total_Steps[!is.na(Total_Steps$steps),]$steps)
+
+```
+
+The mean of steps per day is `r steps_mean`, and the median `r steps_median`.
 
 
 ## What is the average daily activity pattern?
 
+Frist I calculate the mean of steps for each interval across all dates. So I group by interval and summarise using mean function, but using only the complete cases, that is ignoring missing values.
+
+```{r}
+DailyActivity <- data[complete.cases(data),] %>% group_by(interval) %>% summarise(StepsMean=mean(steps) )
+```
+
+And then plot it.
+
+```{r}
+plot(DailyActivity$interval, DailyActivity$StepsMean,type="l",xlab="Interval", ylab="Steps",main="Average Daily Activity Pattern")
+```
 
 
 ## Imputing missing values
 
+Frist I check how many missing values are there and in which column.
 
+``` {r}
+colSums(is.na(data))
+```
+
+There are 2304 missing values, only in "steps" column.
+
+I'll fill those missing values with the mean of the interval for the rest of the days. I already have calculated the mean of each interval for the previous plot, I just need to update the missing values with their corresponding interval mean value.
+
+```{r}
+data <- data %>% left_join(DailyActivity, by="interval") %>%
+mutate(steps= coalesce(steps, StepsMean ) ) %>%
+select(-StepsMean)
+```
+
+Now i'll repeat the firs histogram, with  total number of stpes taken each day.
+
+
+```{r}
+Total_Steps <- data %>% group_by(date) %>% summarise(steps=sum(steps) )
+hist(Total_Steps$steps, xlab="Steps",main="Total steps in one day")
+```
+
+```{r }
+steps_mean <- mean(Total_Steps[!is.na(Total_Steps$steps),]$steps)
+steps_median <- median(Total_Steps[!is.na(Total_Steps$steps),]$steps)
+```
+
+The new of mean of steps per day is `r steps_mean`, and the median `r steps_median`.
+
+Mean is exactly the same as previous calculation without estimated values, which make sense because be used the mean of the interval for filling missing values. The median increases a little bit and matches exactly the mean. 
+
+In the histogram we see an increase of the middle bar area (10000 - 15000), previously had a frecuency of around 30 and now has raised until 35.
 
 ## Are there differences in activity patterns between weekdays and weekends?
