@@ -2,13 +2,13 @@
 title: "Reproducible Research: Peer Assessment 1"
 author: "David Contreras Carretero"
 date: "5/9/2020"
-output: html_document
-html_document:
+output:
+    html_document:
 keep_md: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.path="figure/")
 options("scipen"=100, "digits"=2)
 Sys.setlocale("LC_ALL","English")
 ```
